@@ -5,58 +5,54 @@ import './App.css'
 
 
 function App() {
-
-  const [allPokemons, setAllPokemons] = useState([]) // 모든 포켓몬 데이터
-  const [displayedPokemons, setDisplayedPokemons] = useState([])  // 보여주는 포켓몬 데이터
+  const [pokemons, setPokemons] = useState([])
+  const [offset, setOffset] = useState(0)
+  const [limit, setLimit] = useState(20)
   const [search, setSearch] = useState('')
-  const url = `https://pokeapi.co/api/v2/pokemon/?limit=1008&offset=0`
+
+
+
 
   useEffect(() => {
-    fetchPokeDate()
+    fetchPokeDate(true)
   }, [])
+
+  const fetchPokeDate = async (firstFetch) => {
+    try {
+      const offsetValue = firstFetch ? 0 : offset + limit
+      const url = `https://pokeapi.co/api/v2/pokemon/?limit=${limit}&offset=${offsetValue}`
+      const res = await axios.get(url)
+      firstFetch ? setPokemons(res.data.results) : setPokemons([...pokemons, ...res.data.results])
+      setOffset(offsetValue)
+    } catch (error) {
+      console.error(error)
+    }
+  }
 
   const changehInput = (e) => {
     setSearch(e.target.value)
   }
 
   const searchInput = async (e) => {
+    setPokemons([])
     e.preventDefault()
     if (search.length > 0) {
       try {
         const res = await axios.get(`https://pokeapi.co/api/v2/pokemon/${search}`)
-        if (res.data.id) {
-          const searchPokemonData = {
-            url: `https://pokeapi.co/api/v2/pokemon/${res.data.id}`,
-            name: search
-          }
-          setDisplayedPokemons([searchPokemonData])
-        } else {
-          setDisplayedPokemons([])
+        console.log('search', res)
+        const searchPokemonData = {
+          url: `https://pokeapi.co/api/v2/pokemon/${res.data.id}`,
+          name: search
         }
+        setPokemons([searchPokemonData])
       } catch (error) {
-        setDisplayedPokemons([])
         console.error(error)
       }
     } else {
-      filterDisplayPokemons(allPokemons, [])
+      fetchPokeDate(true)
     }
   }
 
-  const filterDisplayPokemons = (allPokemons, displayedPokemons = []) => {
-    const limit = displayedPokemons.length + 20
-    const showDisplayPokemons = allPokemons.filter((_, index) => index + 1 <= limit)
-    setDisplayedPokemons(showDisplayPokemons)
-  }
-
-  const fetchPokeDate = async () => {
-    try {
-      const res = await axios.get(url)
-      setAllPokemons(res.data.results)
-      filterDisplayPokemons(res.data.results)
-    } catch (error) {
-      console.error(error)
-    }
-  }
 
   return (
     <article className='pt-6' >
@@ -84,8 +80,8 @@ function App() {
       </header>
       <section className='pt-6 flex flex-col justify-center items-center overflow-auto z-0'>
         <div className="flex flex-row flex-wrap gap-[16px] items-center justify-center px-2 max-w-4xl">
-          {displayedPokemons.length > 0 ? (
-            displayedPokemons.map(({ url, name }, index) => (
+          {pokemons.length > 0 ? (
+            pokemons.map(({ url, name }, index) => (
               <PokeCard key={index} url={url} name={name} />
             ))
           ) : (
@@ -93,10 +89,10 @@ function App() {
           )}
         </div>
       </section>
-      {(allPokemons.length > displayedPokemons.length) && displayedPokemons.length > 1 && (
+      {pokemons.length > 1 && (
         <div className="text-center">
           <button
-            onClick={() => filterDisplayPokemons(allPokemons, displayedPokemons)}
+            onClick={() => fetchPokeDate(false)}
             className='bg-slate-800 rounded-lg text-white px-6 py-2 text-base font-bold mt-4'> 더 보기</button>
         </div>
       )}

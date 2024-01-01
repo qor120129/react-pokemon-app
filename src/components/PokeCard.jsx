@@ -9,12 +9,11 @@ const PokeCard = ({ name, url }) => {
 
   useEffect(() => {
     fetchPokeDetailData()
-  }, [])
+  }, [url])
 
   const fetchPokeDetailData = async () => {
     try {
       const res = await axios.get(url)
-      console.log('여ㅛ기서', res)
       const { id, types, name } = res.data
       const pokemonData = {
         id,
@@ -23,20 +22,9 @@ const PokeCard = ({ name, url }) => {
       }
       setPokemon(pokemonData)
     } catch (error) {
-      console.log(error)
+      console.error(error)
     }
   }
-
-  // const  formatPokemonData=(params) =>{
-  //   const { id, types, name } = params
-  //   const pokemon = {
-  //     id,
-  //     name,
-  //     type: types[0].type
-  //   }
-  //   // return pokemon
-  //   setPokemons(pokemon)
-  // }
 
   const bg = `bg-${pokemon?.type}`
   const border = `border-${pokemon?.type}`
