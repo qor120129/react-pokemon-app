@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
-import PokeCard from '../../components/PokeCard'
+import PokeCard from 'components/PokeCard'
 // import '@/App.css'
-import AutoComplete from '../../components/AutoComplete'
+import AutoComplete from 'components/AutoComplete'
 
 
 function MainPage() {
