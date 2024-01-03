@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Loading } from '../assets/Loading'
 
 const LazyImage = ({ alt, url }) => {
   const [loading, setLoading] = useState(true)
@@ -12,8 +13,9 @@ const LazyImage = ({ alt, url }) => {
     <>
       {loading && (
         <div
-          className={`absolute h-full z-10 flex items-center justify-center`}>
-          ..loading
+        className={`absolute h-auto w-auto top-1/2 -translate-x-1/2 -translate-y-1/2 left-1/2 z-50`}
+        >
+          <Loading />
         </div>
       )}
       <img

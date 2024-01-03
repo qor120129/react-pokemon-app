@@ -4,9 +4,6 @@ export default {
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {
@@ -21,9 +18,9 @@ export default {
         grass: '#7AC74C',
         ice: '#97d4d2',
         fighting: '#b83e3a',
-        poison: '#A33A11',
+        poison: '#A313A1',
         ground: '#E2BF65',
-        flying: '#98FF3',
+        flying: '#918FF3',
         psychic: '#F95587',
         bug: '#A6B91A',
         rock: '#B6A136',
@@ -33,11 +30,12 @@ export default {
         steel: '#B7B7CE',
         fairy: '#D685AD',
         none: '#BfBfBf',
+        aaa: '#BfBfBe',
       }
     },
   },
   plugins: [
-    require('tailwind-scrollbar'),
+    require('tailwind-scrollbar'), 
   ],
 
 }

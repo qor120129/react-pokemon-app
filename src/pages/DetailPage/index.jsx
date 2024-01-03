@@ -1,6 +1,15 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import axios from 'axios'
+import NotFound from 'pages/NotFound'
+import { Loading } from '@/assets/Loading'
+import { LessThan } from '@/assets/LessThan'
+import { GreaterThan } from '@/assets/GreaterThan'
+import { ArrowLeft } from '@/assets/ArrowLeft'
+import DetailInfo from 'components/DetailInfo'
+import BaseAbilities from 'components/BaseAbilities'
+import Type from 'components/Type'
+import Damage from 'components/Damage'
 
 const DetailPage = () => {
   const [pokemon, setPokemon] = useState(true)
@@ -13,11 +22,12 @@ const DetailPage = () => {
 
   useEffect(() => {
     detailPokeDate()
-  }, [])
+  }, [pokemonId])
 
 
   async function detailPokeDate() {
     try {
+      setLoading(true)
       const { data } = await axios.get(`${url}/${pokemonId}`)
       if (data) {
         const { name, id, types, weight, height, stats, abilities } = data
@@ -38,17 +48,20 @@ const DetailPage = () => {
           previous: nextAndPreviousPokemon.previous,
           abilities: formatAbilities(abilities),
           stats: formatStats(stats),
+          types: types.map(e => e.type.name),
           Demage
         }
         setLoading(false)
         setPokemon(formattedPokemon)
-
       }
     } catch (error) {
+      setLoading(false)
+      setPokemon()
       console.error(error)
     }
   }
-
+  
+  console.log(loading)
   async function getNextAndPreviousPokemon(id) {
     const nextAndPreviouUrlPokemon = `${url}?limit=1&offset=${id - 1}`
     const nextAndPreviousPokemon = await axios.get(nextAndPreviouUrlPokemon)
@@ -84,15 +97,77 @@ const DetailPage = () => {
       { name: 'Speed', baseStat: statsSPD.base_stat },
     ]
 
+  const img = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemon?.id}.png`
+  const bg = `bg-${pokemon?.types?.[0]}`
+  const text = `text-${pokemon?.types?.[0]}`
 
   return (
     <>
       {loading && (
-        <div>
-          ..loading
-        </div>
+        <Loading className={`absolute h-auto w-auto top-1/2 -translate-x-1/2 left-1/2 z-50`} />
       )}
-      <div>{pokemon.name}</div>
+      {(!pokemon && !loading) && (
+        <NotFound />
+      )}
+      {(pokemon && !loading) && (
+        <article className='flex w-full items-center flex-col'>
+          <div className={`${bg} w-full h-full flex flex-col z-0 items-center justify-end overflow-hidden relative`} >
+            {pokemon.previous && (
+              <Link
+                // onClick={()=>detailPokeDate}
+                className={`absolute top-1/2 left-1 -translate-y-1/2 z-50 p-4`}
+                to={`/pokemon/${pokemon.previous}`}
+              >
+                <LessThan className={`w-5 h-8 p-1`} />
+              </Link>
+            )}
+            {pokemon.next && (
+              <Link
+                // onClick={()=>detailPokeDate}
+                className={`absolute top-1/2 right-1 -translate-y-1/2 z-50  p-4`}
+                to={`/pokemon/${pokemon.next}`}
+              >
+                <GreaterThan className={`w-5 h-8 p-1`} />
+              </Link>
+            )}
+            <section className={`w-full h-full flex flex-col items-center justify-end p-4 box-border`}>
+              <div className={`flex items-center justify-between w-full`}>
+                <div className={`flex justify-start items-center w-full gap-2`} >
+                  <Link to='/' >
+                    <ArrowLeft className={`ww6 h-8 text-slate-50`} />
+                  </Link>
+                  <h1 className={`text-slate-50 font-bold capitalize`}>
+                    {pokemon.name}
+                  </h1>
+                </div>
+                <div className={`text-slate-50 font-bold `}>
+                  #{pokemon.id?.toString().padStart(3, '00')}
+                </div>
+              </div>
+              <div className={`relative max-w-[15.5rem] h-auto z-20 -mb-16`}>
+                <img
+                  src={img}
+                  alt={pokemon.name}
+                  height='auto'
+                  width='100%'
+                  className={`object-contain h-full`}
+                />
+              </div>
+            </section>
+            <section className={`bg-gray-800 flex w-full h-full min-h-[65%] flex-col items-center pt-14 pb-4 px-5 z-10 gap-3`} >
+              <div className='flex gap-3 font-bold'>
+                {pokemon?.types?.map((type, i) => (
+                  <Type key={i} type={type} />
+                ))}
+              </div>
+              <DetailInfo pokemon={pokemon} text={text} />
+              <BaseAbilities pokemon={pokemon} text={text} />
+              <Damage text={text} />
+            </section>
+          </div>
+
+        </article>
+      )}
     </>
   )
 }

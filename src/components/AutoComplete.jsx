@@ -1,11 +1,11 @@
 import React from 'react'
 import { useState } from 'react'
-
 const AutoComplete = ({ allPokemons, setDisplayedPokemons, filterDisplayPokemons }) => {
   const [search, setSearch] = useState('')
 
   const changehInput = (e) => {
-    setSearch(e.target.value)
+    console.log(e)
+    setSearch(e)
   }
   const filterPokemon = (text) => {
     console.log(text)
@@ -39,7 +39,7 @@ const AutoComplete = ({ allPokemons, setDisplayedPokemons, filterDisplayPokemons
         <input
           type="text"
           value={search}
-          onChange={changehInput}
+          onChange={(e) => changehInput(e.target.value)}
           className='text-xs w-[25rem] h-10 px-2 py-1 text-gray-800 text-center border-2 border-slate-800 rounded-lg '
         />
 
@@ -65,6 +65,7 @@ const AutoComplete = ({ allPokemons, setDisplayedPokemons, filterDisplayPokemons
             {autoComplete(search).map((e, i) => (
               <li key={i} >
                 <button
+                  onClick={() => changehInput(e.name)}
                   className={`text-white w-full hover:bg-gray-600 p-[4px]`}
                 >
                   {e.name}

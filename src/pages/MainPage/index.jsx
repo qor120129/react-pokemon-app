@@ -5,7 +5,7 @@ import PokeCard from 'components/PokeCard'
 import AutoComplete from 'components/AutoComplete'
 
 
-function MainPage() {
+const MainPage = () => {
 
   const [allPokemons, setAllPokemons] = useState([]) // 모든 포켓몬 데이터
   const [displayedPokemons, setDisplayedPokemons] = useState([])  // 보여주는 포켓몬 데이터
@@ -33,7 +33,7 @@ function MainPage() {
   }
 
   return (
-    
+
     <article className='pt-6' >
       <header className='flex flex-col gap-2 w-full px-4 z-50'>
         <AutoComplete
