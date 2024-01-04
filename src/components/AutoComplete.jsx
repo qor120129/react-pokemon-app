@@ -1,24 +1,29 @@
-import React from 'react'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+
 const AutoComplete = ({ allPokemons, setDisplayedPokemons, filterDisplayPokemons }) => {
   const [search, setSearch] = useState('')
 
-  const changehInput = (e) => {
-    console.log(e)
-    setSearch(e)
+  const changehInput = (text) => {
+    console.log(text)
+    setSearch(text)
+
   }
   const filterPokemon = (text) => {
     console.log(text)
     const value = text.toLowerCase()
-    return value ? allPokemons.filter((item) => item.name.includes(text)) : []
+    return value? allPokemons.filter((item) => item.name.includes(text)) : []
+  }
+  const searchFilterPokemon = (text) => {
+    const value = text.toLowerCase()
+    return value ? allPokemons.filter((item) => item.name === text) : []
   }
 
   const searchInput = async (e) => {
     e.preventDefault()
-
     if (search.length > 0) {
       const text = search.trim()
-      setDisplayedPokemons(filterPokemon(text))
+      setDisplayedPokemons(searchFilterPokemon(text))
+      setSearch('')
     } else {
       filterDisplayPokemons(allPokemons, [])
     }
@@ -34,13 +39,13 @@ const AutoComplete = ({ allPokemons, setDisplayedPokemons, filterDisplayPokemons
     <div className="relative z-50">
       <form
         onSubmit={searchInput}
-        className='relative flex justify-center items-center w-[25rem] h-6 rounded-lg m-auto '
+        className='relative flex justify-center items-center max-[472px]:w-full w-[24rem] h-6 rounded-lg m-auto '
       >
         <input
           type="text"
           value={search}
           onChange={(e) => changehInput(e.target.value)}
-          className='text-xs w-[25rem] h-10 px-2 py-1 text-gray-800 text-center border-2 border-slate-800 rounded-lg '
+          className='text-xs max-[472px]:w-full  w-[24rem] h-10 px-2 py-1 text-gray-800 text-center border-2 border-slate-800 rounded-lg'
         />
 
         <button

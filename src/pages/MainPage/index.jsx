@@ -68,7 +68,7 @@ const MainPage = () => {
         >
           <button
             onClick={() => filterDisplayPokemons(allPokemons, displayedPokemons)}
-            className='bg-slate-800 rounded-lg text-white px-6 py-2 text-base font-bold mt-4'
+            className='bg-slate-800 rounded-lg text-white px-6 py-2 text-base font-bold my-4'
           >
             더 보기
           </button>

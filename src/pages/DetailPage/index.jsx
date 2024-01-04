@@ -32,7 +32,7 @@ const DetailPage = () => {
       if (data) {
         const { name, id, types, weight, height, stats, abilities } = data
         const nextAndPreviousPokemon = await getNextAndPreviousPokemon(id)
-        const Demage = await Promise.all(
+        const Damages = await Promise.all(
           types.map(async (i) => {
             const type = await axios.get(i.type.url)
             return type.data.damage_relations
@@ -49,7 +49,7 @@ const DetailPage = () => {
           abilities: formatAbilities(abilities),
           stats: formatStats(stats),
           types: types.map(e => e.type.name),
-          Demage
+          Damages
         }
         setLoading(false)
         setPokemon(formattedPokemon)
@@ -61,7 +61,7 @@ const DetailPage = () => {
     }
   }
   
-  console.log(loading)
+  // console.log(pokemon    )
   async function getNextAndPreviousPokemon(id) {
     const nextAndPreviouUrlPokemon = `${url}?limit=1&offset=${id - 1}`
     const nextAndPreviousPokemon = await axios.get(nextAndPreviouUrlPokemon)
@@ -162,7 +162,7 @@ const DetailPage = () => {
               </div>
               <DetailInfo pokemon={pokemon} text={text} />
               <BaseAbilities pokemon={pokemon} text={text} />
-              <Damage text={text} />
+              <Damage text={text} damages={pokemon.Damages }/>
             </section>
           </div>
 
