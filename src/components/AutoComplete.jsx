@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 
 const AutoComplete = ({ allPokemons, setDisplayedPokemons, filterDisplayPokemons }) => {
   const [search, setSearch] = useState('')

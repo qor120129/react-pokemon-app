@@ -1,6 +1,10 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import Type from './Type'
 //배열.reduce((누적값, 현잿값, 인덱스, 요소) 
-const Damage = ({ text, damages }) => {
+
+const Damage = ({ damages }) => {
+
+  const [damagePokemonForm, setDamagePokemonForm] = useState('')
 
   useEffect(() => {
     const damageArray = damages.map((damage) =>
@@ -8,12 +12,11 @@ const Damage = ({ text, damages }) => {
     )
 
     if (damageArray.length === 1) {
-      postDamage(damageArray[0].from)
+      setDamagePokemonForm(postDamage(damageArray[0].from))
     } else if (damageArray.length === 2) {
       //데이터 합치기
       const joinDmageArray = joinpostDamage(damageArray)
-      console.log(reducePostDamage(postDamage(joinDmageArray.from)))
-      reducePostDamage(postDamage(joinDmageArray.from))
+      setDamagePokemonForm(reducePostDamage(postDamage(joinDmageArray.from)))
     }
   }, [])
 
@@ -78,7 +81,7 @@ const Damage = ({ text, damages }) => {
       const filterAcc = acc.filter(item => (item.name !== name))
       return filterAcc.length === acc.length
         ? (acc = [...acc, currenValue])
-        : (acc = [...filterAcc, {name, url ,  damageValue: doubleDamageValue, }])
+        : (acc = [...filterAcc, { name, url, damageValue: doubleDamageValue, }])
     }, [])
   }
 
@@ -105,12 +108,36 @@ const Damage = ({ text, damages }) => {
 
 
   return (
-    <>
-      <h2 className={`${text} font-semibold text-base`}>데미지 관계</h2>
-      <div className={`w-full text-center`}>
-        데미지
-      </div>
-    </>
+    <div className={`flex gap-2 flex-col px-4 pb-4`}>
+      {damagePokemonForm ? (
+        <>
+          {Object.entries(damagePokemonForm).map(([name, value]) => {
+            const nameValue = {
+              double_damage: 'Week',
+              half_damage: 'Resistant',
+              no_damage: 'Immune'
+            }
+            return (
+              <div key={name} className={``}>
+                <h3 className={`text-slate-500 font-medium capitalize text-center mb-2`}>
+                  {nameValue[name]}
+                </h3>
+                <div className={`flex flex-wrap gap-1 items-center justify-center`}>
+                  {value.length > 0
+                    ? (value.map(({ name, url, damageValue }) => (
+                      <Type key={url} type={name} damageValue={damageValue}></Type>
+                    ))) : (
+                      <Type key={'none'} type={'none'} ></Type>
+                    )
+
+                  }</div>
+              </div>
+            )
+          })}
+        </>
+      ) : <div></div>
+      }
+    </div >
   )
 }
 

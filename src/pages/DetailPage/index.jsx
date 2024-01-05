@@ -9,11 +9,12 @@ import { ArrowLeft } from '@/assets/ArrowLeft'
 import DetailInfo from 'components/DetailInfo'
 import BaseAbilities from 'components/BaseAbilities'
 import Type from 'components/Type'
-import Damage from 'components/Damage'
+import DamageModal from '../../components/DamageModal'
 
 const DetailPage = () => {
   const [pokemon, setPokemon] = useState(true)
   const [loading, setLoading] = useState(true)
+  const [DamageModalOpen, setDamageModalOpen] = useState(false)
 
 
   const params = useParams()
@@ -30,9 +31,9 @@ const DetailPage = () => {
       setLoading(true)
       const { data } = await axios.get(`${url}/${pokemonId}`)
       if (data) {
-        const { name, id, types, weight, height, stats, abilities } = data
+        const { name, id, types, weight, height, stats, abilities, sprites } = data
         const nextAndPreviousPokemon = await getNextAndPreviousPokemon(id)
-        const Damages = await Promise.all(
+        const damages = await Promise.all(
           types.map(async (i) => {
             const type = await axios.get(i.type.url)
             return type.data.damage_relations
@@ -49,7 +50,8 @@ const DetailPage = () => {
           abilities: formatAbilities(abilities),
           stats: formatStats(stats),
           types: types.map(e => e.type.name),
-          Damages
+          damages,
+          sprites: formatSprites(sprites)
         }
         setLoading(false)
         setPokemon(formattedPokemon)
@@ -60,8 +62,8 @@ const DetailPage = () => {
       console.error(error)
     }
   }
-  
-  // console.log(pokemon    )
+  console.log(pokemon)
+
   async function getNextAndPreviousPokemon(id) {
     const nextAndPreviouUrlPokemon = `${url}?limit=1&offset=${id - 1}`
     const nextAndPreviousPokemon = await axios.get(nextAndPreviouUrlPokemon)
@@ -97,6 +99,29 @@ const DetailPage = () => {
       { name: 'Speed', baseStat: statsSPD.base_stat },
     ]
 
+  const formatSprites = (sprites) => {
+    // const newSprites = { ...sprites }
+    // Object.keys(newSprites)
+    //   .filter((item) => {
+    //     if (typeof newSprites[item] !== 'string') {
+    //       return delete newSprites[item]
+    //     }
+    //   })
+
+    const newSprites = { ...sprites }
+    const res = Object.entries(newSprites)
+      .filter(([item, value]) => {
+        return typeof value === 'string'
+      })
+      .reduce((acc, [name, value]) => {
+        console.log('ascf', name, value)
+        return (acc = [...acc, { ['name']: name, ['url']: value }])
+      }, [])
+
+    return res
+
+  }
+
   const img = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemon?.id}.png`
   const bg = `bg-${pokemon?.types?.[0]}`
   const text = `text-${pokemon?.types?.[0]}`
@@ -114,7 +139,6 @@ const DetailPage = () => {
           <div className={`${bg} w-full h-full flex flex-col z-0 items-center justify-end overflow-hidden relative`} >
             {pokemon.previous && (
               <Link
-                // onClick={()=>detailPokeDate}
                 className={`absolute top-1/2 left-1 -translate-y-1/2 z-50 p-4`}
                 to={`/pokemon/${pokemon.previous}`}
               >
@@ -123,7 +147,6 @@ const DetailPage = () => {
             )}
             {pokemon.next && (
               <Link
-                // onClick={()=>detailPokeDate}
                 className={`absolute top-1/2 right-1 -translate-y-1/2 z-50  p-4`}
                 to={`/pokemon/${pokemon.next}`}
               >
@@ -154,16 +177,31 @@ const DetailPage = () => {
                 />
               </div>
             </section>
-            <section className={`bg-gray-800 flex w-full h-full min-h-[65%] flex-col items-center pt-14 pb-4 px-5 z-10 gap-3`} >
-              <div className='flex gap-3 font-bold'>
+            <section
+              className={`bg-gray-800 flex w-full h-full min-h-[65%] flex-col items-center pt-14 pb-4 px-5 z-10 gap-3`}
+            >
+              <div className='flex gap-3 font-bold cursor-pointer'
+                onClick={() => setDamageModalOpen(true)} >
                 {pokemon?.types?.map((type, i) => (
                   <Type key={i} type={type} />
                 ))}
               </div>
               <DetailInfo pokemon={pokemon} text={text} />
               <BaseAbilities pokemon={pokemon} text={text} />
-              <Damage text={text} damages={pokemon.Damages }/>
+              <div className={`flex my-8 flex-wrap justify-center`}>
+                {pokemon.sprites.map((item, index) =>
+                  <img
+                    key={index}
+                    src={item.url}
+                    alt={`${item.name}.sprite_img`}
+                  />
+                )}
+              </div>
             </section>
+            {DamageModalOpen && (
+              <DamageModal damages={pokemon.damages} setDamageModalOpen={setDamageModalOpen}>
+              </DamageModal>
+            )}
           </div>
 
         </article>
