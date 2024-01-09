@@ -14,8 +14,8 @@ import PokemonSprites from 'components/PokemonSprites'
 import Description from 'components/Description'
 
 const DetailPage = () => {
-  const [pokemon, setPokemon] = useState(true)
-  const [loading, setLoading] = useState(true)
+  const [pokemon, setPokemon] = useState()
+  const [loading, setLoading] = useState(false)
   const [DamageModalOpen, setDamageModalOpen] = useState(false)
 
 
@@ -24,13 +24,13 @@ const DetailPage = () => {
   const url = `https://pokeapi.co/api/v2/pokemon`
 
   useEffect(() => {
+    setLoading(true)
     detailPokeDate(pokemonId)
   }, [pokemonId])
 
 
   async function detailPokeDate(id) {
     try {
-      setLoading(true)
       const { data } = await axios.get(`${url}/${id}`)
       if (data) {
         const { name, id, types, weight, height, stats, abilities, sprites, } = data
