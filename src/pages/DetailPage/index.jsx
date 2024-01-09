@@ -9,7 +9,9 @@ import { ArrowLeft } from '@/assets/ArrowLeft'
 import DetailInfo from 'components/DetailInfo'
 import BaseAbilities from 'components/BaseAbilities'
 import Type from 'components/Type'
-import DamageModal from '../../components/DamageModal'
+import DamageModal from 'components/DamageModal'
+import PokemonSprites from 'components/PokemonSprites'
+import Description from 'components/Description'
 
 const DetailPage = () => {
   const [pokemon, setPokemon] = useState(true)
@@ -22,16 +24,16 @@ const DetailPage = () => {
   const url = `https://pokeapi.co/api/v2/pokemon`
 
   useEffect(() => {
-    detailPokeDate()
+    detailPokeDate(pokemonId)
   }, [pokemonId])
 
 
-  async function detailPokeDate() {
+  async function detailPokeDate(id) {
     try {
       setLoading(true)
-      const { data } = await axios.get(`${url}/${pokemonId}`)
+      const { data } = await axios.get(`${url}/${id}`)
       if (data) {
-        const { name, id, types, weight, height, stats, abilities, sprites } = data
+        const { name, id, types, weight, height, stats, abilities, sprites, } = data
         const nextAndPreviousPokemon = await getNextAndPreviousPokemon(id)
         const damages = await Promise.all(
           types.map(async (i) => {
@@ -51,7 +53,8 @@ const DetailPage = () => {
           stats: formatStats(stats),
           types: types.map(e => e.type.name),
           damages,
-          sprites: formatSprites(sprites)
+          sprites: formatSprites(sprites),
+          description: await pokemonDescription(id)
         }
         setLoading(false)
         setPokemon(formattedPokemon)
@@ -62,7 +65,6 @@ const DetailPage = () => {
       console.error(error)
     }
   }
-  console.log(pokemon)
 
   async function getNextAndPreviousPokemon(id) {
     const nextAndPreviouUrlPokemon = `${url}?limit=1&offset=${id - 1}`
@@ -114,12 +116,21 @@ const DetailPage = () => {
         return typeof value === 'string'
       })
       .reduce((acc, [name, value]) => {
-        console.log('ascf', name, value)
         return (acc = [...acc, { ['name']: name, ['url']: value }])
       }, [])
 
     return res
 
+  }
+  const pokemonDescription = async (id) => {
+    const url = `https://pokeapi.co/api/v2/pokemon-species/${id}`
+    const { data } = await axios.get(url)
+    const descriptions = filterDescription(data.flavor_text_entries)
+    return descriptions[Math.floor(Math.random() * descriptions.length)].flavor_text
+  }
+
+  const filterDescription = (flavorText) => {
+    return flavorText?.filter(text => text.language.name === 'ko')
   }
 
   const img = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemon?.id}.png`
@@ -135,7 +146,7 @@ const DetailPage = () => {
         <NotFound />
       )}
       {(pokemon && !loading) && (
-        <article className='flex w-full items-center flex-col'>
+        <article className='flex w-full h-full items-center flex-col'>
           <div className={`${bg} w-full h-full flex flex-col z-0 items-center justify-end overflow-hidden relative`} >
             {pokemon.previous && (
               <Link
@@ -153,7 +164,7 @@ const DetailPage = () => {
                 <GreaterThan className={`w-5 h-8 p-1`} />
               </Link>
             )}
-            <section className={`w-full h-full flex flex-col items-center justify-end p-4 box-border`}>
+            <section className={`w-full flex flex-col items-center justify-end p-4 box-border`}>
               <div className={`flex items-center justify-between w-full`}>
                 <div className={`flex justify-start items-center w-full gap-2`} >
                   <Link to='/' >
@@ -188,15 +199,8 @@ const DetailPage = () => {
               </div>
               <DetailInfo pokemon={pokemon} text={text} />
               <BaseAbilities pokemon={pokemon} text={text} />
-              <div className={`flex my-8 flex-wrap justify-center`}>
-                {pokemon.sprites.map((item, index) =>
-                  <img
-                    key={index}
-                    src={item.url}
-                    alt={`${item.name}.sprite_img`}
-                  />
-                )}
-              </div>
+              <Description pokemon={pokemon} text={text} />
+              <PokemonSprites pokemon={pokemon} />
             </section>
             {DamageModalOpen && (
               <DamageModal damages={pokemon.damages} setDamageModalOpen={setDamageModalOpen}>
